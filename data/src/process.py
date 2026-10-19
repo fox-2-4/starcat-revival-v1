@@ -1,6 +1,7 @@
 
 from tqdm import trange
 from pathlib import Path
+from prettytable import PrettyTable, TableStyle
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 DATA_DIR = SCRIPT_DIR.parent
@@ -72,11 +73,12 @@ def parse_raw_data():
         raise FileNotFoundError(f"No files not found in raw data directory: {RAW_DATA_DIR}")
 
 
-    total_keyed_data = {}  # keyed via obj. "main_id"
+    preprocessed_data = {}  # keyed via obj. "main_id"
+    preprocess_stats = {str(raw_data_file_path.name): {} for raw_data_file_path in raw_data_file_paths}
 
-    for i in trange(len(raw_data_file_paths), desc="Extracting rows...", ncols=100):
-        
+    for i in trange(len(raw_data_file_paths), desc="Extracting rows...", ncols=150):
         raw_data_file_path = raw_data_file_paths[i]
+        raw_data_file_name = raw_data_file_path.name
 
         non_data_rows_ct = 0
         completed_rows_ct = 0
@@ -86,7 +88,7 @@ def parse_raw_data():
             with open(raw_data_file_path, "rt", encoding="utf8") as tsv_file:
                 tsv_rows = tsv_file.read().split('\n')
         except FileNotFoundError as err:
-            print(f"File not processed: {raw_data_file_path.name}", err, sep='\n')
+            print(f"File not processed: {raw_data_file_name}", err, sep='\n')
             continue
 
         # each TSV row contains all data for one stellar object
@@ -102,13 +104,38 @@ def parse_raw_data():
                 for i, item in enumerate(raw_data) 
                 if RAW_DATA_COLUMNS[i] is not None
             }
-            if keyed_data["main_id"] in total_keyed_data.keys():
+            if keyed_data["main_id"] in preprocessed_data.keys():
                 duplicate_data_ct += 1
                 continue
             
             # raw data dict index in total_keyed_data via "main_id" (ostensibly UID)
-            total_keyed_data[keyed_data["main_id"]] = keyed_data
+            preprocessed_data[keyed_data["main_id"]] = keyed_data
             completed_rows_ct += 1
+        
+        preprocess_stats[raw_data_file_name] = {
+            "non_data_rows_ct": non_data_rows_ct,
+            "completed_rows_ct": completed_rows_ct,
+            "duplicate_data_ct": duplicate_data_ct
+        }
+
+    print("Preprocessing complete. Stats:")
+    preprocess_stats_table = PrettyTable()
+    preprocess_stats_table.set_style(TableStyle.PLAIN_COLUMNS)
+    preprocess_stats_table.field_names = [
+        "File name", 
+        "# of non-data rows", 
+        "# of preprocessed rows", 
+        "# of duplicate data rows"
+    ]
+    for raw_data_file_name in preprocess_stats.keys():
+        preprocess_stats_table.add_row([
+            raw_data_file_name,
+            preprocess_stats[raw_data_file_name]["non_data_rows_ct"],
+            preprocess_stats[raw_data_file_name]["completed_rows_ct"],
+            preprocess_stats[raw_data_file_name]["duplicate_data_ct"]
+        ])
+    print(preprocess_stats_table)
+    print(f"Total # of rows: {len(preprocessed_data.keys())}")
 
 
 
