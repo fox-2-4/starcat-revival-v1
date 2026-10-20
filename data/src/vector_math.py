@@ -30,29 +30,34 @@ def radians_to_dms(b):
     s = (m - math.floor(m)) * 60
     return int(d), int(m), s
 
-def equatorial_to_spherical(vector: vector) -> vector:
+def equatorial_to_spherical(vec: vector) -> vector:
     """
     Converts Equatorial Coordinate System radian values to standard ISO spherical coordinates.
-    :param vector: tuple containing: ECS right ascension [0, 2pi]; ECS declination [-pi/2, +pi/2]; distance measurement.
+    :param vec: tuple containing: ECS right ascension [0, 2pi]; ECS declination [-pi/2, +pi/2]; distance measurement.
     :return: Standard ISO spherical: distance, theta (0, pi], phi [-pi, +pi]. 
     """
-    ra, dec, d = vector
+    ra, dec, d = vec
     return d, dec + math.pi / 2, ra - math.pi
 
-def spherical_to_cartesian(vector: vector) -> vector:
+def spherical_to_cartesian(vec: vector) -> vector:
     """
     Converts ISO standard spherical coordinates (radius, theta, phi) to cartesian (x, y, z). 
-    :param vector: tuple containing: radial "stant" distance; polar angle from zenith; and azimuthal angle of rotation.
+    :param vec: tuple containing: radial "stant" distance; polar angle from zenith; and azimuthal angle of rotation.
     :return: Cartesian (x, y, z) spatial coordinates. 
     """
-    r, theta, phi = vector
+    r, theta, phi = vec
     x = r * math.sin(theta) * math.cos(phi)
     y = r * math.sin(theta) * math.sin(phi)
     z = r * math.cos(theta)
     return x, y, z
 
-def cartesian_to_spherical(point: vector) -> vector:
-    x, y, z = point
+def cartesian_to_spherical(pt: vector) -> vector:
+    """
+    Converts Cartesian coordinates (x, y, z) to standard ISO spherical (r, theta, phi).
+    :param pt: Cartesian point (x, y, z) w/ implicit origin (0, 0, 0).
+    :return: ISO spherical coordinates (r, theta, phi); or `None` as "undefined" (point coincides w/ origin).
+    """
+    x, y, z = pt
     xy_sqrsum = x**2 + y**2
     r = math.sqrt(xy_sqrsum + z**2)
     if r == 0.0:  # unit sphere radius zero, vector direction undefined
@@ -68,11 +73,11 @@ def cartesian_to_spherical(point: vector) -> vector:
 
     return r, theta, phi
 
-def distance(p0: vector, p1: vector) -> float | None:
+def distance(pt0: vector, pt1: vector) -> float | None:
     return math.sqrt(
-        (p0[0] - p1[0]) ** 2 + 
-        (p0[1] - p1[1]) ** 2 + 
-        (p0[2] - p1[2]) ** 2
+        (pt0[0] - pt1[0]) ** 2 + 
+        (pt0[1] - pt1[1]) ** 2 + 
+        (pt0[2] - pt1[2]) ** 2
     )
 
 def rotate_on_x_axis(pt: vector, theta: float) -> vector:
