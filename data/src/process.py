@@ -135,7 +135,11 @@ def parse_raw_data():
             preprocess_stats[raw_data_file_name]["duplicate_data_ct"]
         ])
     print(preprocess_stats_table)
-    print(f"Total # of rows: {len(preprocessed_data.keys())}")
+    print(f"""Total # of duplicate rows: {sum([
+        preprocess_stats[raw_data_file_name]["duplicate_data_ct"] 
+        for raw_data_file_name in preprocess_stats.keys()
+    ])}""")
+    print(f"Total # of unique rows: {len(preprocessed_data.keys())}")
 
 
 
