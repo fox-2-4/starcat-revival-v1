@@ -11,7 +11,7 @@ def process_main_id(__main_id: str) -> str:
         del main_id_components[0]
     return " ".join(main_id_components)
 
-def process_numeric(__val: str) -> float | None:
+def process_numeric_val(__val: str) -> float | None:
     __val = __val.strip()
     try:
         val = float(__val)
