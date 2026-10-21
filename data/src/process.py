@@ -151,17 +151,19 @@ def process_raw_data():
     print(f"Total # of unique rows: {len(preprocessed_data.keys())}")
     print('\n')
 
-
+    processed_data: dict = {}
     print("Working basic parsing & type conversion over extracted objects...")
     for main_id, obj_data in tqdm(
         preprocessed_data.items(), 
         desc="Working...", 
-        total=len(preprocessed_data)
+        total=len(preprocessed_data),
+        ncols=150
     ):
         for attr_id in obj_data.keys():
 
             if attr_id == "main_id":
-                obj_data["main_id"] = process_main_id(obj_data["mmain_id"])
+                # obj_data["og_main_id"] = obj_data["main_id"]  # store unprocessed value of main_id for posterity
+                obj_data["main_id"] = process_main_id(obj_data["main_id"])
 
             elif attr_id in (
                 'pm', 'rad_vel',
@@ -180,14 +182,19 @@ def process_raw_data():
             else:
                 if obj_data[attr_id].strip() == '':
                     obj_data[attr_id] = None
-    print('\n')
 
+        # re-key by processed main_id.
+        # working dict from here on out.
+        processed_data[obj_data["main_id"]] = obj_data
+
+    print('\n')
 
     print("Checking data integrity, parsing celestial coordinates...")
     for main_id, obj_data in tqdm(
-        preprocessed_data.items(), 
+        processed_data.items(), 
         desc="...", 
-        total=len(preprocessed_data)
+        total=len(processed_data),
+        ncols=150
     ):
         if obj_data["dist"] == 0 and obj_data["main_id"] != "Sol":  # bad distance data
             obj_data["dist"] = None
@@ -212,28 +219,55 @@ def process_raw_data():
     print('\n')
 
 
-    print("Performing coordinate calculations...")
+    print("Performing coordinate system transformations...")
+    # TO-DO: Get stats on # of objects w/o adequate coordinates & positions
     for main_id, obj_data in tqdm(
-        preprocessed_data.items(), 
+        processed_data.items(), 
         desc="...", 
-        total=len(preprocessed_data)
+        total=len(processed_data),
+        ncols=150
     ):
         # normalize to radian values
-        if obj_data["equ_ra"] is not None: obj_data['equ_ra_rad'] = hms_to_radians(obj_data['equ_ra'])
-        if obj_data["equ_dec"] is not None: obj_data['equ_dec_rad'] = dms_to_radians(obj_data['equ_dec'])
-        if obj_data["ecl_ra"] is not None: obj_data['ecl_ra_rad'] = dms_to_radians(obj_data['ecl_ra'])
-        if obj_data["ecl_dec"] is not None: obj_data['ecl_dec_rad'] = dms_to_radians(obj_data['ecl_dec'])
-        if obj_data["gal_ra"] is not None: obj_data['gal_ra_rad'] = dms_to_radians(obj_data['gal_ra'])
-        if obj_data["gal_dec"] is not None: obj_data['gal_dec_rad'] = dms_to_radians(obj_data['gal_dec'])
-
+        if obj_data["equ_ra"] is not None and None not in obj_data["equ_ra"] and \
+            obj_data["equ_dec"] is not None and None not in obj_data["equ_dec"]:
+            obj_data["equ_ra_rad"] = hms_to_radians(obj_data["equ_ra"])
+            obj_data["equ_dec_rad"] = dms_to_radians(obj_data["equ_dec"])
+        else:
+            obj_data["equ_ra_rad"] = None
+            obj_data["equ_dec_rad"] = None     
+        
+        if obj_data["ecl_ra"] is not None and None not in obj_data["ecl_ra"] and \
+            obj_data["ecl_dec"] is not None and None not in obj_data["ecl_dec"]:
+            obj_data["ecl_ra_rad"] = hms_to_radians(obj_data["ecl_ra"])
+            obj_data["ecl_dec_rad"] = dms_to_radians(obj_data["ecl_dec"])
+        else:
+            obj_data["ecl_ra_rad"] = None
+            obj_data["ecl_dec_rad"] = None
+              
+        if obj_data["gal_ra"] is not None and None not in obj_data["gal_ra"] and \
+            obj_data["gal_dec"] is not None and None not in obj_data["gal_dec"]:
+            obj_data["gal_ra_rad"] = hms_to_radians(obj_data["gal_ra"])
+            obj_data["gal_dec_rad"] = dms_to_radians(obj_data["gal_dec"])
+        else:
+            obj_data["gal_ra_rad"] = None
+            obj_data["gal_dec_rad"] = None 
+        
         # calculate spherical coordinates from equatorial coordinate system values;
         # then, calculate Cartesian (x, y, z) from spherical coordinates;
         # ecliptic and galactic coordinates not yet used.
         if None not in (obj_data['equ_ra_rad'], obj_data['equ_dec_rad'], obj_data['dist']):
             obj_data['pos_sph'] = equatorial_to_spherical(
-                tuple(obj_data['equ_ra_rad'], obj_data['equ_dec_rad'], obj_data['dist']))
+                (obj_data['equ_ra_rad'], obj_data['equ_dec_rad'], obj_data['dist']))
             obj_data['pos_xyz'] = spherical_to_cartesian(obj_data['pos_sph'])
 
+    print('\n')
+
+    print_ct = 0
+    for main_id, obj_data in processed_data.items():
+        print(obj_data)
+        print_ct += 1
+        if print_ct > 20:
+            break
 
 
 if __name__ == "__main__":
