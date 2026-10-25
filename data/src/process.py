@@ -1,6 +1,7 @@
 """
 This code doesn't need to be fast or efficient.
-It just needs to run once on a specific set of data to produce the desired JSON.
+It just needs to run once in a developer environment on a
+very specific set of SIMBAD output to produce the desired data.
 """
 
 import json
@@ -9,9 +10,9 @@ from pathlib import Path
 from tqdm import tqdm, trange
 from prettytable import PrettyTable, TableStyle
 
-from obj_keys import ObjKey as OK
-from process_funcs import *
-from vector_math import *
+from data.src.stellar_object import StellarObject as STOB
+from data.src.process_funcs import *
+from data.src.vector_math import *
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -33,50 +34,50 @@ ZIPPED_OBJ_DB_FILE_PATH = PROCESSED_DATA_DIR / ZIPPED_OBJ_DB_FILE_NAME
 # The structure of this tuple describes how the data is arranged on the scraped .txt files.
 UNPROCESSED_DATA_COLUMN_HEADERS = (
     
-    None, OK.MAIN_ID, OK.OBJ_TYPE,
+    None, STOB.MAIN_ID, STOB.OBJ_TYPE,
 
-    OK.ICRS_J2000_RA, OK.ICRS_J2000_DEC,
-    OK.ECLIPTIC_2000_LON, OK.ECLIPTIC_2000_LAT,
-    OK.GALACTIC_LON, OK.GALACTIC_LAT,
+    STOB.ICRS_J2000_RA, STOB.ICRS_J2000_DEC,
+    STOB.ECLIPTIC_2000_LON, STOB.ECLIPTIC_2000_LAT,
+    STOB.GALACTIC_LON, STOB.GALACTIC_LAT,
 
-    OK.RADIAL_VEL,
+    STOB.RADIAL_VEL,
 
-    OK.MAGNITUDE_CAP_U, OK.MAGNITUDE_CAP_B, OK.MAGNITUDE_CAP_V,
-    OK.MAGNITUDE_CAP_R, OK.MAGNITUDE_CAP_G, OK.MAGNITUDE_CAP_I,
-    OK.MAGNITUDE_CAP_J, OK.MAGNITUDE_CAP_H, OK.MAGNITUDE_CAP_K,
-    OK.PHOTOMETRIC_F150W, OK.PHOTOMETRIC_F200W, OK.PHOTOMETRIC_F444W,
-    OK.MAGNITUDE_LIL_U, OK.MAGNITUDE_LIL_G, OK.MAGNITUDE_LIL_R,
-    OK.MAGNITUDE_LIL_I, OK.MAGNITUDE_LIL_Z,
-    OK.SPECTRAL_TYPE,
+    STOB.MAGNITUDE_CAP_U, STOB.MAGNITUDE_CAP_B, STOB.MAGNITUDE_CAP_V,
+    STOB.MAGNITUDE_CAP_R, STOB.MAGNITUDE_CAP_G, STOB.MAGNITUDE_CAP_I,
+    STOB.MAGNITUDE_CAP_J, STOB.MAGNITUDE_CAP_H, STOB.MAGNITUDE_CAP_K,
+    STOB.PHOTOMETRIC_F150W, STOB.PHOTOMETRIC_F200W, STOB.PHOTOMETRIC_F444W,
+    STOB.MAGNITUDE_LIL_U, STOB.MAGNITUDE_LIL_G, STOB.MAGNITUDE_LIL_R,
+    STOB.MAGNITUDE_LIL_I, STOB.MAGNITUDE_LIL_Z,
+    STOB.SPECTRAL_TYPE,
 
-    OK.PROPER_MOTION_NOF_MES,
-    OK.PROPER_MOTION_RA, OK.PROPER_MOTION_RA_ERR,
-    OK.PROPER_MOTION_DEC, OK.PROPER_MOTION_DEC_ERR,
-    OK.PROPER_MOTION_COORD_SYS, OK.PROPER_MOTION_BIBCODE,
+    STOB.PROPER_MOTION_NOF_MES,
+    STOB.PROPER_MOTION_RA, STOB.PROPER_MOTION_RA_ERR,
+    STOB.PROPER_MOTION_DEC, STOB.PROPER_MOTION_DEC_ERR,
+    STOB.PROPER_MOTION_COORD_SYS, STOB.PROPER_MOTION_BIBCODE,
 
-    OK.PARALLAX_NOF_OF_MES,
-    OK.PARALLAX, OK.PARALLAX_ERR,
-    OK.PARALLAX_OBS_CODE,
-    OK.PARALLAX_BIBCODE,
+    STOB.PARALLAX_NOF_OF_MES,
+    STOB.PARALLAX, STOB.PARALLAX_ERR,
+    STOB.PARALLAX_OBS_CODE,
+    STOB.PARALLAX_BIBCODE,
 
-    OK.DISTANCE_NOF_MES,
-    OK.DISTANCE, OK.DISTANCE_QUALITY, OK.DISTANCE_UNIT,
-    OK.DISTANCE_MINUS_ERR, OK.DISTANCE_PLUS_ERR,
-    OK.DISTANCE_METHOD, OK.DISTANCE_BIBCODE,
+    STOB.DISTANCE_NOF_MES,
+    STOB.DISTANCE, STOB.DISTANCE_QUALITY, STOB.DISTANCE_UNIT,
+    STOB.DISTANCE_MINUS_ERR, STOB.DISTANCE_PLUS_ERR,
+    STOB.DISTANCE_METHOD, STOB.DISTANCE_BIBCODE,
 
-    OK.DIAMETER_NOF_MES,
-    OK.DIAMETER, OK.DIAMETER_QUALITY, OK.DIAMETER_UNIT, OK.DIAMETER_ERR,
-    OK.DIAMETER_FILTER, OK.DIAMETER_METHOD, OK.DIAMETER_BIBCODE,
+    STOB.DIAMETER_NOF_MES,
+    STOB.DIAMETER, STOB.DIAMETER_QUALITY, STOB.DIAMETER_UNIT, STOB.DIAMETER_ERR,
+    STOB.DIAMETER_FILTER, STOB.DIAMETER_METHOD, STOB.DIAMETER_BIBCODE,
 
-    OK.FE_H_NOF_MES,
-    OK.EFFECTIVE_TEMP, OK.LOG_G,
-    OK.FE_H_INDEX, OK.FE_H_FLAG,
-    OK.FE_H_COMPARISON_STAR,
-    OK.FE_H_CAT_NO, OK.FE_H_BIBCODE,
+    STOB.FE_H_NOF_MES,
+    STOB.EFFECTIVE_TEMP, STOB.LOG_G,
+    STOB.FE_H_INDEX, STOB.FE_H_FLAG,
+    STOB.FE_H_COMPARISON_STAR,
+    STOB.FE_H_CAT_NO, STOB.FE_H_BIBCODE,
 
-    OK.ROTATION_N,
-    OK.ROTATION_UPPER_VAL, OK.ROTATION_VEL, OK.ROTATION_VEL_ERR,
-    OK.ROTATION_NOF_MES, OK.ROTATION_QUALITY, OK.ROTATION_BIBCODE
+    STOB.ROTATION_N,
+    STOB.ROTATION_UPPER_VAL, STOB.ROTATION_VEL, STOB.ROTATION_VEL_ERR,
+    STOB.ROTATION_NOF_MES, STOB.ROTATION_QUALITY, STOB.ROTATION_BIBCODE
 
 )
 
@@ -171,23 +172,13 @@ def do_preprocess_extraction():
                 for i, item in enumerate(row_data)
                 if UNPROCESSED_DATA_COLUMN_HEADERS[i] is not None  # 'None' identifies data items we don't care to extract
             }
-
-            # if any(
-            #     keyed_row_data[OK.MAIN_ID] == obj_data[OK.MAIN_ID]
-            #     for obj_data in obj_stack
-            #     if obj_data is not None
-            # ):
-            #     duplicate_data_ct += 1
-            #     continue
             
-            if keyed_row_data[OK.MAIN_ID] in obj_main_id_stack.keys():
+            if keyed_row_data[STOB.MAIN_ID] in obj_main_id_stack.keys():
                 duplicate_data_ct += 1
                 continue
 
-            # raw data dict index in total_keyed_data via "main_id" (ostensibly UID)
-            # obj_stack.append(keyed_row_data)
             obj_stack.append(keyed_row_data)
-            obj_main_id_stack[keyed_row_data[OK.MAIN_ID]] = True  # value doesn't matter
+            obj_main_id_stack[keyed_row_data[STOB.MAIN_ID]] = True  # value doesn't matter
             
             completed_rows_ct += 1
         
@@ -238,41 +229,41 @@ def do_basic_type_conversion():
         
         for obj_key in obj_data.keys():
 
-            if obj_key == OK.MAIN_ID:
-                obj_data[OK.MAIN_ID] = parse_main_id(obj_data[OK.MAIN_ID])
+            if obj_key == STOB.MAIN_ID:
+                obj_data[STOB.MAIN_ID] = parse_main_id(obj_data[STOB.MAIN_ID])
 
             # Expected numeric data: attempt to parse. 
             elif obj_key in (
 
-                OK.RADIAL_VEL,
+                STOB.RADIAL_VEL,
 
-                OK.MAGNITUDE_CAP_U, OK.MAGNITUDE_CAP_B, OK.MAGNITUDE_CAP_V,
-                OK.MAGNITUDE_CAP_R, OK.MAGNITUDE_CAP_G, OK.MAGNITUDE_CAP_I,
-                OK.MAGNITUDE_CAP_J, OK.MAGNITUDE_CAP_H, OK.MAGNITUDE_CAP_K,
-                OK.PHOTOMETRIC_F150W, OK.PHOTOMETRIC_F200W, OK.PHOTOMETRIC_F444W,
-                OK.MAGNITUDE_LIL_U, OK.MAGNITUDE_LIL_G, OK.MAGNITUDE_LIL_R,
-                OK.MAGNITUDE_LIL_I, OK.MAGNITUDE_LIL_Z,
+                STOB.MAGNITUDE_CAP_U, STOB.MAGNITUDE_CAP_B, STOB.MAGNITUDE_CAP_V,
+                STOB.MAGNITUDE_CAP_R, STOB.MAGNITUDE_CAP_G, STOB.MAGNITUDE_CAP_I,
+                STOB.MAGNITUDE_CAP_J, STOB.MAGNITUDE_CAP_H, STOB.MAGNITUDE_CAP_K,
+                STOB.PHOTOMETRIC_F150W, STOB.PHOTOMETRIC_F200W, STOB.PHOTOMETRIC_F444W,
+                STOB.MAGNITUDE_LIL_U, STOB.MAGNITUDE_LIL_G, STOB.MAGNITUDE_LIL_R,
+                STOB.MAGNITUDE_LIL_I, STOB.MAGNITUDE_LIL_Z,
 
-                OK.PROPER_MOTION_NOF_MES,
-                OK.PROPER_MOTION_RA, OK.PROPER_MOTION_RA_ERR,
-                OK.PROPER_MOTION_DEC, OK.PROPER_MOTION_DEC_ERR,
+                STOB.PROPER_MOTION_NOF_MES,
+                STOB.PROPER_MOTION_RA, STOB.PROPER_MOTION_RA_ERR,
+                STOB.PROPER_MOTION_DEC, STOB.PROPER_MOTION_DEC_ERR,
             
-                OK.PARALLAX_NOF_OF_MES,
-                OK.PARALLAX, OK.PARALLAX_ERR,
+                STOB.PARALLAX_NOF_OF_MES,
+                STOB.PARALLAX, STOB.PARALLAX_ERR,
             
-                OK.DISTANCE_NOF_MES,
-                OK.DISTANCE, OK.DISTANCE_MINUS_ERR, OK.DISTANCE_PLUS_ERR,
+                STOB.DISTANCE_NOF_MES,
+                STOB.DISTANCE, STOB.DISTANCE_MINUS_ERR, STOB.DISTANCE_PLUS_ERR,
             
-                OK.DIAMETER_NOF_MES,
-                OK.DIAMETER, OK.DIAMETER_ERR,
+                STOB.DIAMETER_NOF_MES,
+                STOB.DIAMETER, STOB.DIAMETER_ERR,
             
-                OK.FE_H_NOF_MES,
-                OK.EFFECTIVE_TEMP, OK.LOG_G,
-                OK.FE_H_INDEX,
+                STOB.FE_H_NOF_MES,
+                STOB.EFFECTIVE_TEMP, STOB.LOG_G,
+                STOB.FE_H_INDEX,
             
-                OK.ROTATION_N,
-                OK.ROTATION_VEL, OK.ROTATION_VEL_ERR,
-                OK.ROTATION_NOF_MES
+                STOB.ROTATION_N,
+                STOB.ROTATION_VEL, STOB.ROTATION_VEL_ERR,
+                STOB.ROTATION_NOF_MES
 
             ):
                 obj_data[obj_key] = parse_numeric_val(obj_data[obj_key])
@@ -299,31 +290,31 @@ def do_coordinate_parsing():
         ncols=150
     ):
         # Bad distance data or object is a Solar System object.
-        if obj_data[OK.DISTANCE] == 0 and obj_data[OK.MAIN_ID] != "Sol":
-            obj_data[OK.DISTANCE] = None
-            obj_data[OK.DISTANCE_UNIT] = None
+        if obj_data[STOB.DISTANCE] == 0 and obj_data[STOB.MAIN_ID] != "Sol":
+            obj_data[STOB.DISTANCE] = None
+            obj_data[STOB.DISTANCE_UNIT] = None
 
         # Numeric parsing failed earlier. Lacking units, distance value is useless and vice versa.
-        elif None in (obj_data[OK.DISTANCE], obj_data[OK.DISTANCE_UNIT]):
-            obj_data[OK.DISTANCE] = None
+        elif None in (obj_data[STOB.DISTANCE], obj_data[STOB.DISTANCE_UNIT]):
+            obj_data[STOB.DISTANCE] = None
 
         # Distance unit is something other than parsecs; usually extragalactic.
-        elif obj_data[OK.DISTANCE_UNIT] != "pc":
-            match obj_data[OK.DISTANCE_UNIT]:
-                case "kpc": obj_data[OK.DISTANCE] *= 1e3
-                case "Mpc": obj_data[OK.DISTANCE] *= 1e6
-                case "Gpc": obj_data[OK.DISTANCE] *= 1e9
-                case _: obj_data[OK.DISTANCE] = None  # unrecognized distance unit (let's log it)
-            obj_data[OK.DISTANCE_UNIT] = "pc"
+        elif obj_data[STOB.DISTANCE_UNIT] != "pc":
+            match obj_data[STOB.DISTANCE_UNIT]:
+                case "kpc": obj_data[STOB.DISTANCE] *= 1e3
+                case "Mpc": obj_data[STOB.DISTANCE] *= 1e6
+                case "Gpc": obj_data[STOB.DISTANCE] *= 1e9
+                case _: obj_data[STOB.DISTANCE] = None  # unrecognized distance unit (let's log it)
+            obj_data[STOB.DISTANCE_UNIT] = "pc"
 
         # Attempt to parse celestial coordinates from extracted strings.
         do_strict_coordinate_parsing = False
-        obj_data[OK.ICRS_J2000_RA] = parse_coordinates(obj_data[OK.ICRS_J2000_RA], fmt='h m s', strict=do_strict_coordinate_parsing)
-        obj_data[OK.ICRS_J2000_DEC] = parse_coordinates(obj_data[OK.ICRS_J2000_DEC], fmt='d m s', strict=do_strict_coordinate_parsing)
-        obj_data[OK.ECLIPTIC_2000_LON] = parse_coordinates(obj_data[OK.ECLIPTIC_2000_LON], fmt='d m s', strict=do_strict_coordinate_parsing)
-        obj_data[OK.ECLIPTIC_2000_LAT] = parse_coordinates(obj_data[OK.ECLIPTIC_2000_LAT], fmt='d m s', strict=do_strict_coordinate_parsing)
-        obj_data[OK.GALACTIC_LON] = parse_coordinates(obj_data[OK.GALACTIC_LON], fmt='d m s', strict=do_strict_coordinate_parsing)
-        obj_data[OK.GALACTIC_LAT] = parse_coordinates(obj_data[OK.GALACTIC_LAT], fmt='d m s', strict=do_strict_coordinate_parsing)
+        obj_data[STOB.ICRS_J2000_RA] = parse_coordinates(obj_data[STOB.ICRS_J2000_RA], fmt='h m s', strict=do_strict_coordinate_parsing)
+        obj_data[STOB.ICRS_J2000_DEC] = parse_coordinates(obj_data[STOB.ICRS_J2000_DEC], fmt='d m s', strict=do_strict_coordinate_parsing)
+        obj_data[STOB.ECLIPTIC_2000_LON] = parse_coordinates(obj_data[STOB.ECLIPTIC_2000_LON], fmt='d m s', strict=do_strict_coordinate_parsing)
+        obj_data[STOB.ECLIPTIC_2000_LAT] = parse_coordinates(obj_data[STOB.ECLIPTIC_2000_LAT], fmt='d m s', strict=do_strict_coordinate_parsing)
+        obj_data[STOB.GALACTIC_LON] = parse_coordinates(obj_data[STOB.GALACTIC_LON], fmt='d m s', strict=do_strict_coordinate_parsing)
+        obj_data[STOB.GALACTIC_LAT] = parse_coordinates(obj_data[STOB.GALACTIC_LAT], fmt='d m s', strict=do_strict_coordinate_parsing)
     
     print('\n')
 
@@ -344,39 +335,39 @@ def do_coordinate_transformations():
     ):
         
         # Normalize parsed coordinates to radian values.
-        if None not in (obj_data[OK.ICRS_J2000_RA], obj_data[OK.ICRS_J2000_DEC]):
-            obj_data[OK.ICRS_J2000_RA_RAD] = hms_to_radians(obj_data[OK.ICRS_J2000_RA])
-            obj_data[OK.ICRS_J2000_DEC_RAD] = dms_to_radians(obj_data[OK.ICRS_J2000_DEC])
+        if None not in (obj_data[STOB.ICRS_J2000_RA], obj_data[STOB.ICRS_J2000_DEC]):
+            obj_data[STOB.ICRS_J2000_RA_RAD] = hms_to_radians(obj_data[STOB.ICRS_J2000_RA])
+            obj_data[STOB.ICRS_J2000_DEC_RAD] = dms_to_radians(obj_data[STOB.ICRS_J2000_DEC])
         else:
-            obj_data[OK.ICRS_J2000_RA_RAD] = None
-            obj_data[OK.ICRS_J2000_DEC_RAD] = None     
+            obj_data[STOB.ICRS_J2000_RA_RAD] = None
+            obj_data[STOB.ICRS_J2000_DEC_RAD] = None     
 
-        if None not in (obj_data[OK.ECLIPTIC_2000_LON], obj_data[OK.ECLIPTIC_2000_LAT]):
-            obj_data[OK.ECLIPTIC_2000_LON_RAD] = hms_to_radians(obj_data[OK.ECLIPTIC_2000_LON])
-            obj_data[OK.ECLIPTIC_2000_LAT_RAD] = dms_to_radians(obj_data[OK.ECLIPTIC_2000_LAT])
+        if None not in (obj_data[STOB.ECLIPTIC_2000_LON], obj_data[STOB.ECLIPTIC_2000_LAT]):
+            obj_data[STOB.ECLIPTIC_2000_LON_RAD] = hms_to_radians(obj_data[STOB.ECLIPTIC_2000_LON])
+            obj_data[STOB.ECLIPTIC_2000_LAT_RAD] = dms_to_radians(obj_data[STOB.ECLIPTIC_2000_LAT])
         else:
-            obj_data[OK.ECLIPTIC_2000_LON_RAD] = None
-            obj_data[OK.ECLIPTIC_2000_LAT_RAD] = None
+            obj_data[STOB.ECLIPTIC_2000_LON_RAD] = None
+            obj_data[STOB.ECLIPTIC_2000_LAT_RAD] = None
 
-        if None not in (obj_data[OK.GALACTIC_LON], obj_data[OK.GALACTIC_LAT]):
-            obj_data[OK.GALACTIC_LON_RAD] = hms_to_radians(obj_data[OK.GALACTIC_LON])
-            obj_data[OK.GALACTIC_LAT_RAD] = dms_to_radians(obj_data[OK.GALACTIC_LAT])
+        if None not in (obj_data[STOB.GALACTIC_LON], obj_data[STOB.GALACTIC_LAT]):
+            obj_data[STOB.GALACTIC_LON_RAD] = hms_to_radians(obj_data[STOB.GALACTIC_LON])
+            obj_data[STOB.GALACTIC_LAT_RAD] = dms_to_radians(obj_data[STOB.GALACTIC_LAT])
         else:
-            obj_data[OK.GALACTIC_LON_RAD] = None
-            obj_data[OK.GALACTIC_LAT_RAD] = None 
+            obj_data[STOB.GALACTIC_LON_RAD] = None
+            obj_data[STOB.GALACTIC_LAT_RAD] = None 
         
         # Calculate spherical coordinates from equatorial coordinate system values;
         # then, calculate Cartesian (x, y, z) from spherical coordinates.
         # Ecliptic and galactic coordinates not yet used.
-        if None not in (obj_data[OK.ICRS_J2000_RA_RAD], 
-                        obj_data[OK.ICRS_J2000_DEC_RAD], 
-                        obj_data[OK.DISTANCE]):
-            obj_data[OK.SPHERICAL_COORDS] = equatorial_to_spherical((
-                obj_data[OK.ICRS_J2000_RA_RAD], 
-                obj_data[OK.ICRS_J2000_DEC_RAD], 
-                obj_data[OK.DISTANCE]
+        if None not in (obj_data[STOB.ICRS_J2000_RA_RAD], 
+                        obj_data[STOB.ICRS_J2000_DEC_RAD], 
+                        obj_data[STOB.DISTANCE]):
+            obj_data[STOB.SPHERICAL_COORDS] = equatorial_to_spherical((
+                obj_data[STOB.ICRS_J2000_RA_RAD], 
+                obj_data[STOB.ICRS_J2000_DEC_RAD], 
+                obj_data[STOB.DISTANCE]
             ))
-            obj_data[OK.SPATIAL_COORDS] = spherical_to_cartesian(obj_data[OK.SPHERICAL_COORDS])
+            obj_data[STOB.SPATIAL_COORDS] = spherical_to_cartesian(obj_data[STOB.SPHERICAL_COORDS])
 
     print('\n')
 
@@ -397,8 +388,7 @@ def do_serialization_and_dumping():
         ncols=150
     ):
         
-        # serial_obj_stack.append(OK.serialize_obj_data(obj_data))
-        serial_obj_stack.append(OK.serialize_obj_data(obj_data))
+        serial_obj_stack.append(STOB.serialize_stellar_obj_data(obj_data))
 
     print('\n')
 
