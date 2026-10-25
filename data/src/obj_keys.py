@@ -14,6 +14,9 @@ OBJ_KEYS_FP = PROCESSED_DATA_DIR / OBJ_KEYS_FN
 
 
 class ObjKey(StrEnum):
+    """
+    Object keys indexing stellar object database.
+    """
 
     MAIN_ID = 'main_id'
     OBJ_TYPE = 'obj_type'
@@ -179,13 +182,15 @@ class ObjKey(StrEnum):
         """
         obj_keys = ObjKey.obj_keys()
         serial_obj_data = [None] * len(obj_keys)
-        for obj_key, obj_item in obj_data:
+        for obj_key, obj_item in obj_data.items():
             try:
                 key_idx = obj_keys.index(obj_key)
             except ValueError:
                 raise ValueError(f'Could not index key \"{obj_key}\" and item \"{obj_item}\" with object keys.')
             
             serial_obj_data[key_idx] = obj_item
+        
+        return serial_obj_data
 
 
     @staticmethod
