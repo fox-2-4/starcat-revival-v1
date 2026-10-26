@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Color ASCII Grid</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #121212;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* Scalable canvas frame */
+        #display-wrapper {
+            width: 90vmin;
+            height: 90vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            border: 2px solid #333;
+            padding: 4px;
+        }
+
+        /* CSS Grid constrained by runtime variable dimensions */
+        #ascii-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-cols, 100), 1fr);
+            grid-template-rows: repeat(var(--grid-rows, 100), 1fr);
+            width: 100%;
+            height: 100%;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        /* Every pixel cell forced to a perfect square */
+        #ascii-grid span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1;
+            line-height: 1;
+            font-size: calc(90vmin / var(--grid-max-dim, 100));
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="display-wrapper">
+        <div id="ascii-grid"></div>
+    </div>
+
+    <script>
+        class ColorAsciiGrid {
+            constructor(width, height, defaultChar = ' ', defaultColor = '#333333') {
+                this.width = width;
+                this.height = height;
+                this.defaultChar = defaultChar;
+                this.defaultColor = defaultColor;
+                
+                this.gridContainer = document.getElementById('ascii-grid');
+                
+                // Track length of flat buffers
+                this.totalCells = width * height;
+                
+                // Memory Buffers
+                this.charBuffer = new Array(this.totalCells).fill(defaultChar);
+                this.colorBuffer = new Array(this.totalCells).fill(defaultColor);
+                
+                // DOM Cache Buffer to prevent redundant write cycles
+                this.domCache = new Array(this.totalCells);
+
+                this.initDOM();
+            }
+
+            initDOM() {
+                this.gridContainer.innerHTML = '';
+                
+                // Pass configurations cleanly down to CSS layout hooks
+                this.gridContainer.style.setProperty('--grid-cols', this.width);
+                this.gridContainer.style.setProperty('--grid-rows', this.height);
+                this.gridContainer.style.setProperty('--grid-max-dim', Math.max(this.width, this.height));
+
+                const fragment = document.createDocumentFragment();
+                
+                for (let i = 0; i < this.totalCells; i++) {
+                    const cell = document.createElement('span');
+                    cell.textContent = this.charBuffer[i];
+                    cell.style.color = this.colorBuffer[i];
+                    
+                    this.domCache[i] = cell;
+                    fragment.appendChild(cell);
+                }
+                
+                this.gridContainer.appendChild(fragment);
+            }
+
+            // Public Pixel Setter
+            setPixel(x, y, char, color = '#ffffff') {
+                if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+                    const idx = y * this.width + x;
+                    this.charBuffer[idx] = char.charAt(0);
+                    this.colorBuffer[idx] = color;
+                }
+            }
+
+            // Public Pixel Getter
+            getPixel(x, y) {
+                if (x >= 0 && x < this.width && y >= 0 && y < this.height) {
+                    const idx = y * this.width + x;
+                    return {
+                        char: this.charBuffer[idx],
+                        color: this.colorBuffer[idx]
+                    };
+                }
+                return null;
+            }
+
+            clear() {
+                this.charBuffer.fill(this.defaultChar);
+                this.colorBuffer.fill(this.defaultColor);
+            }
+
+            // Smart Diff Render Engine
+            render() {
+                for (let i = 0; i < this.totalCells; i++) {
+                    const cellDom = this.domCache[i];
+                    const nextChar = this.charBuffer[i];
+                    const nextColor = this.colorBuffer[i];
+
+                    // Structural diffing: Only manipulate elements with changed state
+                    if (cellDom.textContent !== nextChar) {
+                        cellDom.textContent = nextChar;
+                    }
+                    if (cellDom.style.color !== nextColor) {
+                        cellDom.style.color = nextColor;
+                    }
+                }
+            }
+        }
+
+        // --- Demo Execution (Using an asymmetric 80x50 sizing layout) ---
+        const display = new ColorAsciiGrid(80, 50, '.', '#222222');
+
+        let frame = 0;
+        function animate() {
+            display.clear();
+
+            // Render a plasma / rainbow circular ripple pattern
+            for (let y = 0; y < display.height; y++) {
+                for (let x = 0; x < display.width; x++) {
+                    
+                    // Since cells are uniform squares, geometric distance calculation works perfectly
+                    const dx = x - (display.width / 2);
+                    const dy = y - (display.height / 2);
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Dynamic calculation values for wave movement
+                    const wave = Math.sin(distance * 0.4 - frame * 0.1);
+                    
+                    if (wave > 0.7) {
+                        display.setPixel(x, y, '@', '#ff3366'); // Pink outer crest
+                    } else if (wave > 0.4) {
+                        display.setPixel(x, y, 'o', '#ff9933'); // Orange mid band
+                    } else if (wave > 0.1) {
+                        display.setPixel(x, y, '*', '#33ccff'); // Light Blue inner frame
+                    } else if (wave > -0.2) {
+                        display.setPixel(x, y, '·', '#333399'); // Deep blue background ripple
+                    }
+                }
+            }
+
+            display.render();
+            frame++;
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>

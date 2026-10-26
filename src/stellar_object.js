@@ -1,4 +1,13 @@
 
+import * as fflate from './fflate/esm/browser.js'
+
+const ROOT_DIR = '../'
+const DATA_DIR = ROOT_DIR + 'data/';
+const PROCESSED_DATA_DIR = DATA_DIR + 'processed/';
+const ZIPPED_OBJ_DB_FILE_NAME = 'obj_db.zip';
+const ZIPPED_OBJ_DB_FILE_PATH = PROCESSED_DATA_DIR + ZIPPED_OBJ_DB_FILE_NAME;
+const OBJ_DB_FN = 'obj_db.json';
+
 
 export const StellarObject = Object.freeze({
 
@@ -154,6 +163,42 @@ export const StellarObject = Object.freeze({
 
         ];
 
+    },
+
+
+    /**
+     * 
+     * @param {Array} serialObjData 
+     */
+    deserializeStellarObjData(serialObjData) {
+    },
+
+
+    async fetchStellarObjDatabase() {
+
+        function unzip(data) {
+            return new Promise((resolve, reject) => {
+                fflate.unzip(data, (err, files) => {
+                    if (err) { reject(err); return; }
+                    resolve(files)
+                });
+            });
+        }
+
+        const response = await fetch(ZIPPED_OBJ_DB_FILE_PATH);
+
+        if (!response.ok) { throw new Error(`Failed to fetch ${ZIPPED_OBJ_DB_FILE_PATH}: ${response.status}`); }
+
+        const buffer = await response.arrayBuffer();
+        const uint8Arr = new Uint8Array(buffer);
+        const files = await unzip(uint8Arr);
+        const data = files[OBJ_DB_FN];
+
+        if (!data) { throw new Error(`${OBJ_DB_FN} not found in ${ZIPPED_OBJ_DB_FILE_NAME}`); }
+
+        const text = new TextDecoder('utf-8').decode(data);
+
+        return JSON.parse(text);
     }
 
 });

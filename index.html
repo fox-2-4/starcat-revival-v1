@@ -4,10 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link href="./index.css" rel="stylesheet" />
+    <link href="./src/text_grid.css" rel="stylesheet" />
 </head>
 <body>
-    <p id="text">...</p>
+    <p>Test top</p>
+    <div id="main-text-grid-wrapper" class="text-grid-wrapper">
+        <div id="main-text-grid" class="text-grid"></div>
+    </div>
+    <p>Test bottom</p>
 </body>
-<script type="module" src="src/fflate/esm/browser.js"></script>
-<script type="module" src="src/main.js"></script>
+<script type="module" src="./src/fflate/esm/browser.js"></script>
+<script type="module" src="./src/text_grid.js"></script>
+<script type="module" src="./src/main.js"></script>
 </html>

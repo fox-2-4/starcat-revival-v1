@@ -200,8 +200,10 @@ class StellarObject(StrEnum):
         """
         Re-keys serialized stellar object data. 
         """
-        ...
-        return NotImplemented
+        obj_keys = StellarObject.stellar_obj_keys()
+        if len(serial_obj_data) != len(obj_keys):
+            raise ValueError(f'Incorrect length of serialized object data.')
+        return {obj_key: obj_data for obj_key, obj_data in zip(obj_keys, serial_obj_data)}
 
     
     @staticmethod
