@@ -1,6 +1,6 @@
 
 import { StellarObject } from './stellar_object.js';
-import { TextGrid } from './text_grid.js';
+import { Cmatrix } from './cmatrix.js';
 
 
 const ROOT_DIR = '../'
@@ -11,7 +11,6 @@ const ZIPPED_OBJ_DB_FILE_PATH = PROCESSED_DATA_DIR + ZIPPED_OBJ_DB_FILE_NAME;
 const OBJ_DB_FN = 'obj_db.json';
 
 
-const mainTextGrid = new TextGrid(120, 60, 'main-text-grid');
+const cmatrixMain = new Cmatrix('#main-cmatrix', 120, 60, ' ');
+const cmatrixSub = new Cmatrix('#sub-cmatrix', 40, 30, ' ');
 
-mainTextGrid.set(10, 20, '#', '#777777');
-mainTextGrid.render();

@@ -5,16 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link href="./index.css" rel="stylesheet" />
-    <link href="./src/text_grid.css" rel="stylesheet" />
+    <link href="./src/cmatrix.css" rel="stylesheet" />
 </head>
 <body>
+
     <p>Test top</p>
-    <div id="main-text-grid-wrapper" class="text-grid-wrapper">
-        <div id="main-text-grid" class="text-grid"></div>
+
+    <div class="cmatrix-panel">
+        <h3>Test heading</h3>
+        <div id="main-cmatrix" class="cmatrix-slot"></div>
     </div>
+
+    <div class="cmatrix-panel">
+        <h3>Test heading 2</h3>
+        <div id="sub-cmatrix" class="cmatrix-slot"></div>
+    </div>
+
     <p>Test bottom</p>
+
 </body>
 <script type="module" src="./src/fflate/esm/browser.js"></script>
-<script type="module" src="./src/text_grid.js"></script>
+<script type="module" src="./src/cmatrix.js"></script>
 <script type="module" src="./src/main.js"></script>
 </html>
