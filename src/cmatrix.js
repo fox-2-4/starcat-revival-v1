@@ -116,7 +116,6 @@ export class Cmatrix {
         }
     }
 
-
     destroy() {
         this.resizeObserver.disconnect();
         this.cmatrixWrapper.remove();

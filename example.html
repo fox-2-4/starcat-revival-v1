@@ -229,8 +229,8 @@
                 this.wrapper.style.height = `${targetHeight}px`;
 
                 // Calculate font scaling dynamically based on individual grid unit footprint
-                const cellDimension = targetWidth / this.width;
-                this.grid.style.fontSize = `${cellDimension}px`;
+                const cellSize = targetWidth / this.width;
+                this.grid.style.fontSize = `${cellSize}px`;
             }
 
             setPixel(x, y, char, color = '#fff') {

@@ -11,6 +11,7 @@ def parse_main_id(__main_id: str) -> str:
         del main_id_components[0]
     return " ".join(main_id_components)
 
+
 def parse_numeric_val(__val: str) -> float | None:
     __val = __val.strip()
     try:
@@ -22,13 +23,14 @@ def parse_numeric_val(__val: str) -> float | None:
             return None  # could not extract float value
     return val
 
+
 def parse_coordinates(
         __coords: str, 
         fmt: str = "x m s", 
         sep: str = " ",
         strict: bool = True
 ) -> vector | None:
-    
+
     __coords = __coords.strip().split(sep)
 
     if len(__coords) == 0 or len(__coords) > 3:  # bad string
@@ -44,7 +46,6 @@ def parse_coordinates(
                 coords[i] = float(val)
             except ValueError:
                 return None
-        return coords
     
     # With 'strict' set to 'False', group objects can be included if at least the primary degree of measure or better
     # can be parsed, i.e., the hours/degrees measurement. The other higher-precision elements are set to 0.0.
@@ -55,7 +56,7 @@ def parse_coordinates(
                 coords[i] = float(val)
             except ValueError:
                 if i == 0: return None  # primary element of the coordinates could be resolved
-                return coords
-            
-
+                return coords  # return early, higher precision measurements = 0.0
     
+    return coords
+                

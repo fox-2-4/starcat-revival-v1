@@ -1,8 +1,8 @@
-"""
-This code doesn't need to be fast or efficient.
-It just needs to run once in a developer environment on a
-very specific set of SIMBAD output to produce the desired data.
-"""
+# """
+# This code doesn't need to be fast or efficient.
+# It just needs to run once in a developer environment on a
+# very specific set of SIMBAD output to produce the desired data.
+# """
 
 import json
 import zipfile
@@ -10,9 +10,9 @@ from pathlib import Path
 from tqdm import tqdm, trange
 from prettytable import PrettyTable, TableStyle
 
-from data.src.stellar_object import StellarObject as STOB
-from data.src.process_funcs import *
-from data.src.vector_math import *
+from stellar_object import StellarObject as STOB
+from process_funcs import *
+from vector_math import *
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent

@@ -1,7 +1,8 @@
 
-import * as fflate from './fflate/esm/browser.js'
+import * as fflate from './fflate/esm/browser.js';
 
-const ROOT_DIR = '../'
+
+const ROOT_DIR = '../';
 const DATA_DIR = ROOT_DIR + 'data/';
 const PROCESSED_DATA_DIR = DATA_DIR + 'processed/';
 const ZIPPED_OBJ_DB_FILE_NAME = 'obj_db.zip';
@@ -197,8 +198,19 @@ export const StellarObject = Object.freeze({
         if (!data) { throw new Error(`${OBJ_DB_FN} not found in ${ZIPPED_OBJ_DB_FILE_NAME}`); }
 
         const text = new TextDecoder('utf-8').decode(data);
+        const jsonData = JSON.parse(text);
+        
+        const objKeys = StellarObject.stellarObjKeys();
+        const objStack = [];
 
-        return JSON.parse(text);
+        for (let objJsonData of jsonData) {
+            const objData = Object.fromEntries(
+                objKeys.map((key, idx) => [key, objJsonData[idx]])
+            );
+            objStack.push(objData);
+        }
+        
+        return objStack;
     }
 
 });

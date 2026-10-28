@@ -4,22 +4,84 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <link href="./index.css" rel="stylesheet" />
-    <link href="./src/cmatrix.css" rel="stylesheet" />
+    <link href="./styles/index.css" rel="stylesheet" />
+    <link href="./styles/cmatrix.css" rel="stylesheet" />
 </head>
+
 <body>
+
+    <header id="site-header">
+        <div id="site-header-container">
+            <a href="#" class="site-logo">Logo</a>
+
+            <nav class="site-header__nav">
+                <ul class="site-header__nav-list">
+                    <li><a href="#" class="site-header__nav-link">Home</a></li>
+                    <li><a href="#" class="site-header__nav-link">Projects</a></li>
+                    <li><a href="#" class="site-header__nav-link">Docs</a></li>
+                    <li><a href="#" class="site-header__nav-link">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
     <p>Test top</p>
 
-    <div class="cmatrix-panel">
-        <h3>Test heading</h3>
-        <div id="main-cmatrix" class="cmatrix-slot"></div>
+    <div id="cmatrix-panel-container">
+        
+        <div class="cmatrix-panel-wrapper">
+            <div class="cmatrix-panel">
+                <h3>Test heading</h3>
+                <div id="main-cmatrix" class="cmatrix-slot"></div>
+            </div>
+        </div>
+        
+        <div class="cmatrix-panel-wrapper">
+            <div class="cmatrix-panel">
+                <h3>Test heading 2</h3>
+                <div id="sub-cmatrix" class="cmatrix-slot"></div>
+            </div>
+        </div>
+        
     </div>
 
-    <div class="cmatrix-panel">
-        <h3>Test heading 2</h3>
-        <div id="sub-cmatrix" class="cmatrix-slot"></div>
+
+    <div id="nav-control-wrapper">
+        <div id="nav-control-container">
+
+            <div id="nav-control__text-entry-wrapper">
+                <div id="nav-control__text-entry-container">
+                    <div id="nav-control__text-entry__position"></div>
+                    <div id="nav-control__text-entry__angle"></div>
+                </div>
+            </div>
+
+            <div id="nav-control__buttons-wrapper">
+                <div id="nav-control__buttons-container">
+                    
+                    <div id="nav-control__angle-buttons-wrapper">
+                        <div id="nav-control__angle-buttons-container">
+                            <div id="nav-control__angle-button__up"></div>
+                            <div id="nav-control__angle-button__down"></div>
+                            <div id="nav-control__angle-button__left"></div>
+                            <div id="nav-control__angle-button__right"></div>
+                        </div>
+                    </div>
+
+                    <div id="nav-control__position-buttons-wrapper">
+                        <div id="nav-control__position-buttons-container">
+                            <div id="nav-control__position-button__forward"></div>
+                            <div id="nav-control__position-button__backward"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
     </div>
+
+    <div id="obj-readout-wrapper"></div>
 
     <p>Test bottom</p>
 
